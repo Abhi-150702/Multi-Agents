@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     research_model: str
     coding_model: str
+    supervisor_model: str
 
     model_config = SettingsConfigDict(
         env_file='.env',

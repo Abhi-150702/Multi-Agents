@@ -21,3 +21,10 @@ def get_coding_agent() -> ChatGroq:
         api_key=config_settings.groq_api_key
     )
 
+def get_supervisor_agent() -> ChatGroq:
+    logger.info(f"Initialising Supervisor Model using: {config_settings.supervisor_model}")
+    return ChatGroq(
+        model=config_settings.supervisor_model,
+        temperature=0,
+        api_key=config_settings.groq_api_key
+    )

@@ -3,6 +3,7 @@
 .codemie
 .env
 *.pyc
+*.md
 
 # Log files
 logs/
