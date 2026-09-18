@@ -1,0 +1,9 @@
+.venv
+.vscode
+.codemie
+.env
+*.pyc
+
+# Log files
+logs/
+*.log

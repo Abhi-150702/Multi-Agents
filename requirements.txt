@@ -1,0 +1,16 @@
+langchain
+langgraph
+langchain_groq
+langchain_community
+python-dotenv
+pydantic
+pydantic-settings
+ddgs
+beautifulsoup4
+requests
+
+langchain-google-community
+langchain-core
+arxiv
+youtube-transcript-api
+yt-dlp
