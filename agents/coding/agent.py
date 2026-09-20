@@ -1,4 +1,4 @@
-from models.llm import get_coding_agent
+from models.llm import get_coding_llm
 from langchain.agents import create_agent
 from agents.coding.prompt import CODING_AGENT_SYSTEM_PROMPT
 
@@ -20,7 +20,7 @@ def create_coding_agent():
     logger.info('Intializing Coding Agent!')
     logger.info(f'Registered {len(coding_tools)} Tools with Coding Agent!')
     return create_agent(
-        model=get_coding_agent(),
+        model=get_coding_llm(),
         tools=coding_tools,
         system_prompt=CODING_AGENT_SYSTEM_PROMPT
     )

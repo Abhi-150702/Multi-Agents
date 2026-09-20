@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     google_api_key : str
     google_cse_id : str
 
+    general_model: str
     research_model: str
     coding_model: str
     supervisor_model: str

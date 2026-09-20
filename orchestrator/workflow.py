@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, START
 
-from orchestrator.nodes import supervisor_node, research_node, coding_node
+from orchestrator.nodes import supervisor_node, general_node, research_node, coding_node
 from orchestrator.routes import route_from_supervisor, route_after_research, get_supervisor_routes, get_research_coder_routes
 from schemas.state import AgentState
 
@@ -10,6 +10,7 @@ def get_workflow():
 
     # Add nodes with consistent naming (Capital Case)
     builder.add_node('Supervisor', supervisor_node)
+    builder.add_node('General', general_node)
     builder.add_node('Researcher', research_node)
     builder.add_node('Coder', coding_node)
 

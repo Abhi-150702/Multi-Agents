@@ -30,6 +30,7 @@ def get_supervisor_routes():
     Node names are in CamelCase format.
     """
     return {
+        "General" : "General",
         "Research" : "Researcher",
         "Coding" : "Coder",
         "ResearchAndCoding" : "Researcher"
