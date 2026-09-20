@@ -1,4 +1,4 @@
-from orchestrator.graph import get_workflow
+from orchestrator.workflow import get_workflow
 
 app = get_workflow()
 

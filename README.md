@@ -22,20 +22,24 @@
 
 ## 🎯 Overview
 
-This is a **production-ready Multi-Agent AI System** built with LangChain and LangGraph that provides two specialized AI agents:
+This is a **production-ready Multi-Agent AI System** built with LangChain and LangGraph that provides **three specialized AI agents orchestrated by an intelligent supervisor**:
 
-1. **Research Agent** - Conducts comprehensive research using multiple information sources (web search, academic papers, GitHub, YouTube, etc.)
-2. **Coding Agent** - Assists with software development tasks including code analysis, file operations, and code generation
+1. **Supervisor Agent** - Analyzes user queries and intelligently routes to appropriate specialist agents
+2. **Research Agent** - Conducts comprehensive research using multiple information sources (web search, academic papers, GitHub, YouTube, etc.)
+3. **Coding Agent** - Assists with software development tasks including code analysis, file operations, and code generation
 
 The system features **enterprise-grade logging** that tracks all tool executions, providing complete visibility into agent operations for debugging, monitoring, and audit purposes.
 
 ### Key Highlights
-- 🔍 **10 Specialized Tools** across two agents
+- 🤖 **3 Specialized Agents** with intelligent routing
+- 🎯 **Supervisor-Based Orchestration** for optimal agent selection
+- 🔍 **10 Specialized Tools** across research and coding agents
 - 📊 **Comprehensive Logging** with dual output (console + file)
 - 🚀 **Powered by Groq LLMs** for fast inference
 - 🛠️ **Modular Architecture** for easy extension
 - 📝 **Complete Documentation** with examples and guides
 - ✅ **Fully Tested** with dedicated test scripts
+- 🔄 **LangGraph Workflow** with conditional routing
 
 ---
 
@@ -43,39 +47,52 @@ The system features **enterprise-grade logging** that tracks all tool executions
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Main Application                      │
-│                         (main.py)                            │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ├─────────────────┬──────────────────┐
-                         ▼                 ▼                  ▼
-              ┌──────────────────┐  ┌──────────────┐  ┌──────────────┐
-              │  Research Agent   │  │ Coding Agent │  │   LLM Models │
-              │  (7 Tools)        │  │ (3 Tools)    │  │   (Groq)     │
-              └──────────────────┘  └──────────────┘  └──────────────┘
-                         │                 │
-                         │                 │
-              ┌──────────┴─────────────────┴──────────┐
-              │                                        │
-              ▼                                        ▼
-    ┌─────────────────┐                    ┌─────────────────┐
-    │  Research Tools │                    │  Coding Tools   │
-    ├─────────────────┤                    ├─────────────────┤
-    │ • Web Search    │                    │ • File System   │
-    │ • GitHub        │                    │ • Code Analysis │
-    │ • arXiv         │                    │ • File Reading  │
-    │ • YouTube       │                    └─────────────────┘
-    │ • Web Scraping  │
-    └─────────────────┘
-              │
-              ▼
-    ┌─────────────────────────────────────┐
-    │      Logging System                  │
-    │  • Console Output (INFO)             │
-    │  • File Logs (DEBUG)                 │
-    │  • Error Tracking                    │
-    │  • Performance Monitoring            │
-    └─────────────────────────────────────┘
+│                    User Query Input                          │
+└──────────────────────────┬───────────────────────────────────┘
+                           ↓
+              ┌────────────────────────┐
+              │   Supervisor Agent     │  ← Analyzes query and decides routing
+              │  (Intelligent Router)  │
+              └────────┬───────────────┘
+                       │
+         ┌─────────────┼─────────────┐
+         │             │             │
+         ↓             ↓             ↓
+    [Research]     [Coding]   [ResearchAndCoding]
+         │             │             │
+         ↓             ↓             ↓
+  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+  │  Research   │ │   Coding    │ │  Research   │
+  │   Agent     │ │   Agent     │ │   Agent     │
+  │ (7 Tools)   │ │ (3 Tools)   │ │             │
+  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘
+         │               │               │
+         ↓               ↓               ↓ (if ResearchAndCoding)
+       [END]           [END]       ┌─────────────┐
+                                   │   Coding    │
+                                   │   Agent     │
+                                   └──────┬──────┘
+                                          ↓
+                                        [END]
+
+┌───────────────────────────────────────────────────────────────┐
+│                     Tool Categories                            │
+├───────────────────────────────────────────────────────────────┤
+│  Research Tools (7)      │    Coding Tools (3)                │
+│  • duckduckgo_search     │    • list_files                    │
+│  • google_search         │    • read_files                    │
+│  • arxiv_search          │    • analyze_python_file           │
+│  • github_search         │                                    │
+│  • youtube_search        │                                    │
+│  • youtube_transcript    │                                    │
+│  • read_webpage          │                                    │
+└───────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────┐
+│                    Logging System                              │
+│  • Console Output (INFO) • File Logs (DEBUG)                  │
+│  • Error Tracking        • Performance Monitoring             │
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -87,15 +104,35 @@ The system features **enterprise-grade logging** that tracks all tool executions
 #### 1. **Main Entry Point** (`main.py`)
 - Initializes the application
 - Takes user query as input
-- Creates and invokes the Research Agent
+- Currently configured to use Research Agent directly (can be updated to use Supervisor workflow)
 - Logs the final response
 
-**Flow:**
+**Current Flow:**
 ```python
-User Input → Create Agent → Invoke Agent → Get Response → Log Output
+User Input → Create Research Agent → Invoke Agent → Get Response → Log Output
+```
+
+**Orchestrator Flow (when using `orchestrator/graph.py`):**
+```python
+User Input → Supervisor Agent → Route Decision → Specialist Agent(s) → Get Response → Log Output
 ```
 
 #### 2. **Agent Configuration**
+
+##### Supervisor Agent (`agents/supervisor/agent.py`) ⭐ NEW
+- **Purpose**: Analyzes user queries and routes to appropriate specialist agents
+- **Tools**: None (decision-making only)
+- **Model**: Configurable LLM from Groq
+- **System Prompt**: Detailed routing guidelines and agent selection criteria
+- **Output**: Structured routing decision (Research, Coding, or ResearchAndCoding)
+
+**Key Functions:**
+- `create_supervisor_agent()` - Initializes supervisor with routing logic
+
+**Routing Decisions:**
+- `"Research"` - Route to Research Agent only
+- `"Coding"` - Route to Coding Agent only
+- `"ResearchAndCoding"` - Route to Research Agent, then Coding Agent
 
 ##### Research Agent (`agents/research/agent.py`)
 - **Purpose**: Conducts comprehensive research using multiple sources
@@ -111,17 +148,19 @@ User Input → Create Agent → Invoke Agent → Get Response → Log Output
 - **Tools**: 3 file system and code analysis tools
 - **Model**: Configurable LLM from Groq
 - **System Prompt**: Guidelines for code generation and analysis
+- **Can receive**: Research results from Research Agent when using ResearchAndCoding route
 
 **Key Functions:**
 - `create_coding_agent()` - Initializes agent with coding tools
 
 #### 3. **Language Models** (`models/llm.py`)
 
-Provides two LLM configurations:
+Provides three LLM configurations:
+- **Supervisor LLM**: Optimized for decision-making and routing
 - **Research LLM**: Optimized for information retrieval and synthesis
 - **Coding LLM**: Optimized for code understanding and generation
 
-Both use:
+All use:
 - **Provider**: Groq (fast inference)
 - **Temperature**: 0 (deterministic outputs)
 - **Models**: Configurable via environment variables
@@ -138,7 +177,46 @@ Settings:
   - coding_model        # Model name for coding agent
 ```
 
-#### 5. **Logging System** (`config/logging_config.py`)
+#### 5. **Orchestrator** (`orchestrator/`) ⭐ NEW
+
+Manages the multi-agent workflow using LangGraph:
+
+**Files:**
+- `graph.py` - Defines the workflow graph with nodes and edges
+- `nodes.py` - Implements supervisor, research, and coding node functions
+- `routes.py` - Defines routing logic and conditional edge mappings
+
+**Key Concepts:**
+- **Nodes**: Supervisor, Researcher, Coder
+- **Conditional Routing**: Based on supervisor decisions
+- **State Management**: AgentState tracks query, routes, and results
+
+**Graph Structure:**
+```python
+START → Supervisor → [Researcher | Coder]
+        Researcher → [Coder | END]
+```
+
+#### 6. **Schemas** (`schemas/`) ⭐ NEW
+
+Defines data structures for the system:
+
+**state.py** - AgentState:
+```python
+- user_query: str                    # Original user input
+- supervisor_route: str              # Routing decision
+- supervisor_route_rationale: str    # Why this route was chosen
+- research_result: str               # Output from research agent
+- coding_result: str                 # Output from coding agent
+```
+
+**routing.py** - RoutingDecision:
+```python
+- route: Literal["Research", "Coding", "ResearchAndCoding"]
+- rationale: str                     # Explanation for routing choice
+```
+
+#### 7. **Logging System** (`config/logging_config.py`)
 
 Centralized logging infrastructure:
 - **Dual Output**: Console (INFO) + File (DEBUG)
@@ -682,6 +760,9 @@ print(result)
 Multi-Agents/
 │
 ├── 📁 agents/                          # Agent configurations
+│   ├── 📁 supervisor/                 # ⭐ NEW: Supervisor agent
+│   │   ├── agent.py                   # Supervisor agent setup
+│   │   └── prompt.py                  # Routing decision prompt
 │   ├── 📁 coding/
 │   │   ├── agent.py                   # Coding agent setup
 │   │   └── prompt.py                  # Coding agent system prompt
@@ -689,12 +770,21 @@ Multi-Agents/
 │       ├── agent.py                   # Research agent setup
 │       └── prompt.py                  # Research agent system prompt
 │
+├── 📁 orchestrator/                    # ⭐ NEW: Workflow orchestration
+│   ├── graph.py                       # LangGraph workflow definition
+│   ├── nodes.py                       # Node implementations
+│   └── routes.py                      # Routing logic
+│
+├── 📁 schemas/                         # ⭐ NEW: Data structures
+│   ├── state.py                       # AgentState definition
+│   └── routing.py                     # RoutingDecision schema
+│
 ├── 📁 config/                          # Configuration files
 │   ├── logging_config.py              # Logging setup
 │   └── settings.py                    # Environment variables
 │
 ├── 📁 models/                          # LLM configurations
-│   └── llm.py                         # Groq model setup
+│   └── llm.py                         # Groq model setup (3 models)
 │
 ├── 📁 tools/                           # Tool implementations
 │   ├── 📁 coding/
@@ -722,13 +812,21 @@ Multi-Agents/
 │
 ├── 📄 test_logging.py                  # Research tools test
 ├── 📄 test_coding_tools_logging.py     # Coding tools test
+├── 📄 test_graph.py                    # ⭐ NEW: Graph compilation test
+├── 📄 test_routing_system.py           # ⭐ NEW: Routing system test
+├── 📄 test_supervisor_agent.py         # ⭐ NEW: Supervisor test
+├── 📄 test_coding_agent.py             # Coding agent test
 │
 └── 📚 Documentation/
     ├── LOGGING_DOCUMENTATION.md       # Complete logging docs
     ├── LOGGING_QUICK_REFERENCE.md     # Quick reference
-    ├── LOGGING_SYSTEM_README.md       # Logging system overview
     ├── CODING_AGENT_LOGGING_SUMMARY.md # Implementation details
-    └── IMPLEMENTATION_CHECKLIST.md    # Implementation checklist
+    ├── FINAL_GRAPH_FIX.md             # ⭐ Graph compilation fix guide
+    ├── GRAPH_ERROR_QUICK_FIX.md       # Quick graph fix reference
+    ├── WHAT_I_FIXED.md                # Graph error explanation
+    ├── ROUTING_FIX_SUMMARY.md         # Routing fix details
+    ├── GRAPH_VISUALIZATION.md         # Graph structure diagrams
+    └── ... (15+ documentation files)
 ```
 
 ---
@@ -1016,12 +1114,14 @@ This project is provided as-is for educational and research purposes.
 
 ## 📊 Statistics
 
-- **Total Agents**: 2 (Research + Coding)
+- **Total Agents**: 3 (Supervisor + Research + Coding)
 - **Total Tools**: 10 (7 Research + 3 Coding)
-- **Lines of Code**: ~2000+
-- **Documentation Files**: 5 comprehensive guides
-- **Test Scripts**: 2 with 15+ test cases
+- **Orchestration**: LangGraph-based workflow with conditional routing
+- **Lines of Code**: ~3000+
+- **Documentation Files**: 15+ comprehensive guides (including graph fix docs)
+- **Test Scripts**: 4 with 20+ test cases
 - **Logging Coverage**: 100% of tools
+- **Routing Options**: 3 (Research, Coding, ResearchAndCoding)
 
 ---
 
@@ -1030,13 +1130,16 @@ This project is provided as-is for educational and research purposes.
 This Multi-Agent AI System provides:
 
 ✅ **Production-Ready** - Comprehensive logging and error handling  
-✅ **Well-Documented** - 5 documentation files with examples  
-✅ **Fully Tested** - Test scripts for all tools  
+✅ **Intelligent Routing** - Supervisor agent for optimal task delegation  
+✅ **LangGraph Orchestration** - Sophisticated workflow with conditional routing  
+✅ **Well-Documented** - 15+ documentation files with examples  
+✅ **Fully Tested** - Test scripts for all components  
 ✅ **Modular Design** - Easy to extend and customize  
 ✅ **Enterprise Features** - Logging, monitoring, audit trails  
-✅ **Multiple Agents** - Research and Coding capabilities  
+✅ **Three Specialized Agents** - Supervisor, Research, and Coding  
 ✅ **10 Specialized Tools** - Covering diverse use cases  
 ✅ **Fast Inference** - Powered by Groq  
+✅ **State Management** - Track query flow and results  
 
 **Get started in minutes, scale to production!** 🚀
 

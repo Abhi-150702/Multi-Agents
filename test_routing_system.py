@@ -3,7 +3,7 @@ Test script to verify the routing system works correctly with CamelCase format.
 This tests the graph compilation and routing logic.
 """
 
-from orchestrator.graph import get_workflow
+from orchestrator.workflow import get_workflow
 from schemas.state import AgentState
 
 def test_graph_compilation():
