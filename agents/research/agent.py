@@ -12,6 +12,7 @@ from tools.research.web.youtube_transcripts import youtube_transcript
 from tools.research.code.github import github_search
 from tools.research.academic.arxiv import arxiv_search
 
+from config.settings import Settings
 from config.logging_config import setup_logger
 logger = setup_logger('research_agent')
 
@@ -27,11 +28,11 @@ tools = [
 
 
 
-def create_research_agent() -> create_agent:
+def create_research_agent(config_settings: Settings = None) -> create_agent:
     logger.info("Initializing Research Agents!")
     logger.info(f"Registered {len(tools)} Tools with Research Agent")
     return create_agent(
-        model=get_research_llm(),
+        model=get_research_llm(config_settings),
         tools = tools,
         system_prompt=RESEARCH_AGENT_SYSTEM_PROMPT
     )

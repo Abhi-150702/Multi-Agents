@@ -6,6 +6,8 @@ from agents.research.agent import create_research_agent
 from agents.coding.agent import create_coding_agent
 
 from schemas.state import AgentState
+
+from config.settings import Settings
 from config.logging_config import setup_logger
 
 logger = setup_logger('nodes')
@@ -17,7 +19,7 @@ _research_agent = None
 _coding_agent = None
 
 
-def initialize_agents():
+def initialize_agents(config_settings: Settings = None):
     """
     Initialize all agents at application startup.
     This ensures agents are ready before the first query hits.
@@ -30,22 +32,22 @@ def initialize_agents():
 
     # Initialize supervisor agent
     logger.info("[1/4] Initializing Supervisor Agent...")
-    _supervisor_agent = create_supervisor_agent()
+    _supervisor_agent = create_supervisor_agent(config_settings)
     logger.info("[1/4] Supervisor Agent initialized successfully!")
 
     # Initialize general agent
     logger.info("[2/4] Initializing General Agent...")
-    _general_agent = create_general_agent()
+    _general_agent = create_general_agent(config_settings)
     logger.info("[2/4] General Agent initialized successfully!")
 
     # Initialize research agent
     logger.info("[3/4] Initializing Research Agent...")
-    _research_agent = create_research_agent()
+    _research_agent = create_research_agent(config_settings)
     logger.info("[3/4] Research Agent initialized successfully!")
 
     # Initialize coding agent
     logger.info("[4/4] Initializing Coding Agent...")
-    _coding_agent = create_coding_agent()
+    _coding_agent = create_coding_agent(config_settings)
     logger.info("[4/4] Coding Agent initialized successfully!")
 
 
@@ -68,14 +70,14 @@ def get_agents_status():
     }
 
 
-def supervisor_node(state: AgentState) -> AgentState:
+def supervisor_node(state: AgentState, config_settings: Settings = None) -> AgentState:
     global _supervisor_agent
 
     # Fallback: Initialize agent if not already initialized
     # This should not happen if initialize_agents() is called at startup
     if _supervisor_agent is None:
         logger.warning("Supervisor agent not initialized at startup. Initializing now...")
-        _supervisor_agent = create_supervisor_agent()
+        _supervisor_agent = create_supervisor_agent(config_settings)
 
     supervisor_agent = _supervisor_agent
 
@@ -98,14 +100,14 @@ def supervisor_node(state: AgentState) -> AgentState:
     return state
 
 
-def general_node(state: AgentState) -> AgentState:
+def general_node(state: AgentState,  config_settings: Settings = None) -> AgentState:
     global _general_agent
 
     # Fallback: Initialize agent if not already initialized
     # This should not happen if initialize_agents() is called at startup
     if _general_agent is None:
         logger.warning("General agent not initialized at startup. Initializing now...")
-        _general_agent = create_general_agent()
+        _general_agent = create_general_agent(config_settings)
 
     general_agent = _general_agent
 
@@ -125,14 +127,14 @@ def general_node(state: AgentState) -> AgentState:
     return state
 
 
-def research_node(state: AgentState) -> AgentState:
+def research_node(state: AgentState,  config_settings: Settings = None) -> AgentState:
     global _research_agent
 
     # Fallback: Initialize agent if not already initialized
     # This should not happen if initialize_agents() is called at startup
     if _research_agent is None:
         logger.warning("Research agent not initialized at startup. Initializing now...")
-        _research_agent = create_research_agent()
+        _research_agent = create_research_agent(config_settings)
 
     research_agent = _research_agent
 
@@ -152,14 +154,14 @@ def research_node(state: AgentState) -> AgentState:
     return state
 
 
-def coding_node(state: AgentState) -> AgentState:
+def coding_node(state: AgentState,  config_settings: Settings = None) -> AgentState:
     global _coding_agent
 
     # Fallback: Initialize agent if not already initialized
     # This should not happen if initialize_agents() is called at startup
     if _coding_agent is None:
         logger.warning("Coding agent not initialized at startup. Initializing now...")
-        _coding_agent = create_coding_agent()
+        _coding_agent = create_coding_agent(config_settings)
 
     coding_agent = _coding_agent
 
