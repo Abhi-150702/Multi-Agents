@@ -63,15 +63,7 @@ async def main():
             server_path="mcp_servers/research_server.py"
         )
 
-        logger.info("Research MCP Server initialized successfully!")
-
-        await mcp_manager.register_server(
-            server_name="coding",
-            server_path="mcp_servers/coding_server.py"
-        )
-
-        logger.info("Coding MCP Server initialized successfully!")
-        
+        logger.info("Research MCP Server initialized successfully!")        
 
         await initialize_agents(
             config_settings=config_settings,
