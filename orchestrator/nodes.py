@@ -116,7 +116,7 @@ def get_agents_status():
 # Supervisor Node
 # ============================================================
 
-def supervisor_node(
+async def supervisor_node(
     state: AgentState,
     config_settings: Settings = None
 ) -> AgentState:
@@ -131,11 +131,13 @@ def supervisor_node(
             "Initializing now..."
         )
 
-        _supervisor_agent = create_supervisor_agent(config_settings)
+        _supervisor_agent = await create_supervisor_agent(config_settings)
 
     supervisor_agent = _supervisor_agent
 
-    response = supervisor_agent.invoke(
+    logger.info("Executing Supervisor Agent...")
+
+    response = await supervisor_agent.ainvoke(
         {
             "messages": [
                 {
@@ -151,6 +153,8 @@ def supervisor_node(
     state.supervisor_route = decision.route
     state.supervisor_route_rationale = decision.rationale
 
+    logger.info(f"Supervisor route decision: {decision.route}")
+
     return state
 
 
@@ -158,7 +162,7 @@ def supervisor_node(
 # General Node
 # ============================================================
 
-def general_node(
+async def general_node(
     state: AgentState,
     config_settings: Settings = None
 ) -> AgentState:
@@ -172,11 +176,13 @@ def general_node(
             "Initializing now..."
         )
 
-        _general_agent = create_general_agent(config_settings)
+        _general_agent = await create_general_agent(config_settings)
 
     general_agent = _general_agent
 
-    response = general_agent.invoke(
+    logger.info("Executing General Agent...")
+
+    response = await general_agent.ainvoke(
         {
             "messages": [
                 {
@@ -188,6 +194,8 @@ def general_node(
     )
 
     state.general_result = response["messages"][-1].content
+
+    logger.info("General Agent execution completed.")
 
     return state
 
@@ -239,7 +247,7 @@ async def research_node(
 # Coding Node
 # ============================================================
 
-def coding_node(state: AgentState, config_settings: Settings = None) -> AgentState:
+async def coding_node(state: AgentState, config_settings: Settings = None) -> AgentState:
     global _coding_agent
 
     # Fallback initialization
@@ -249,7 +257,7 @@ def coding_node(state: AgentState, config_settings: Settings = None) -> AgentSta
             "Initializing now..."
         )
 
-        _coding_agent = create_coding_agent(config_settings)
+        _coding_agent = await create_coding_agent(config_settings)
 
     coding_agent = _coding_agent
 
@@ -274,7 +282,9 @@ Use your own reasoning and produce the appropriate implementation.
     else:
         prompt = state.user_query
 
-    response = coding_agent.invoke(
+    logger.info("Executing Coding Agent...")
+
+    response = await coding_agent.ainvoke(
         {
             "messages": [
                 {
@@ -286,5 +296,7 @@ Use your own reasoning and produce the appropriate implementation.
     )
 
     state.coding_result = response["messages"][-1].content
+
+    logger.info("Coding Agent execution completed.")
 
     return state

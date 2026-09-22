@@ -30,24 +30,34 @@ def get_workflow(config_settings):
     # Supervisor
     # ========================================================
 
-    builder.add_node(
-        "Supervisor",
-        lambda state: supervisor_node(
+    async def supervisor_node_with_config(
+        state: AgentState
+    ) -> AgentState:
+        return await supervisor_node(
             state,
             config_settings
         )
+
+    builder.add_node(
+        "Supervisor",
+        supervisor_node_with_config
     )
 
     # ========================================================
     # General
     # ========================================================
 
-    builder.add_node(
-        "General",
-        lambda state: general_node(
+    async def general_node_with_config(
+        state: AgentState
+    ) -> AgentState:
+        return await general_node(
             state,
             config_settings
         )
+
+    builder.add_node(
+        "General",
+        general_node_with_config
     )
 
     # ========================================================
@@ -72,12 +82,17 @@ def get_workflow(config_settings):
     # Coding
     # ========================================================
 
-    builder.add_node(
-        "Coder",
-        lambda state: coding_node(
+    async def coding_node_with_config(
+        state: AgentState
+    ) -> AgentState:
+        return await coding_node(
             state,
             config_settings
         )
+
+    builder.add_node(
+        "Coder",
+        coding_node_with_config
     )
 
     # ========================================================
