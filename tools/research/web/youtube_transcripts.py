@@ -33,7 +33,7 @@ def extract_video_id(url : str) -> str | None:
 
 
 @tool
-def youtube_transcript(video_url: str, max_characters: int = 30000) -> str:
+def youtube_transcript(video_url: str, max_characters: int = 5000) -> str:
     """
     Retrieve the transcript of a YouTube video.
 

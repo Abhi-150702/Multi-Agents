@@ -1,12 +1,16 @@
 import argparse
+import asyncio
 
 from orchestrator.workflow import get_workflow
 from orchestrator.nodes import initialize_agents, get_agents_status
+
+from mcp_client.manager import MCPManager
+
 from config.logging_config import setup_logger
 from config.settings import Settings
 
 
-logger = setup_logger('main')
+logger = setup_logger("main")
 
 
 def parse_arguments():
@@ -36,7 +40,8 @@ def get_workflow_and_representation(config_settings):
     return workflow
 
 
-def main():
+async def main():
+
     args = parse_arguments()
 
     config_settings = Settings()
@@ -46,8 +51,32 @@ def main():
     logger.info("Starting Multi-Agent Application...")
     logger.info(f"Use Ollama: {config_settings.use_ollama}")
 
+    mcp_manager = MCPManager()
+
     try:
-        initialize_agents(config_settings)
+        logger.info("=" * 60)
+        logger.info("Initializing MCP Servers...")
+        logger.info("=" * 60)
+
+        await mcp_manager.register_server(
+            server_name="research",
+            server_path="mcp_servers/research_server.py"
+        )
+
+        logger.info("Research MCP Server initialized successfully!")
+
+        await mcp_manager.register_server(
+            server_name="coding",
+            server_path="mcp_servers/coding_server.py"
+        )
+
+        logger.info("Coding MCP Server initialized successfully!")
+        
+
+        await initialize_agents(
+            config_settings=config_settings,
+            mcp_manager=mcp_manager
+        )
 
         status = get_agents_status()
 
@@ -57,42 +86,62 @@ def main():
                 "They will be initialized when required."
             )
 
+        else:
+            logger.info("All agents initialized successfully!")
+
+        workflow = get_workflow_and_representation(config_settings)
+
         logger.info("Application ready to accept queries!\n")
 
+        while True:
+            query = input("\n\nUser Query: ").strip()
+
+            if not query:
+                continue
+
+            if query.lower() in {"exit", "quit"}:
+                logger.info("Shutting down application.")
+                break
+
+            try:
+                result = await workflow.ainvoke(
+                    {
+                        "user_query": query
+                    }
+                )
+
+                if result.get("general_result"):
+                    logger.info(
+                        f"\nAI Response: "
+                        f"{result['general_result']}"
+                    )
+
+                elif result.get("research_result"):
+                    logger.info(
+                        f"\nAI Response: "
+                        f"{result['research_result']}"
+                    )
+
+                elif result.get("coding_result"):
+                    logger.info(
+                        f"\nAI Response: "
+                        f"{result['coding_result']}"
+                    )
+
+            except Exception as exc:
+                logger.exception(f"Application error: {exc}")
+
     except Exception as exc:
-        logger.exception(
-            f"Failed to initialize application: {exc}"
-        )
-        return
-    workflow = get_workflow_and_representation(config_settings)
+        logger.exception(f"Failed to initialize application: {exc}")
 
-    while True:
-        query = input("User Query: ").strip()
-
-        if not query:
-            continue
-
-        if query.lower() in {"exit", "quit"}:
-            logger.info("Shutting down application.")
-            return
-
+    finally:
+        logger.info("Shutting down MCP connections...")
         try:
-            result = workflow.invoke({"user_query": query})
-
-            if result.get("general_result"):
-                logger.info(f"\nAI Response: {result['general_result']}")
-
-            elif result.get("research_result"):
-                logger.info(f"\nAI Response: {result['research_result']}")
-
-            elif result.get("coding_result"):
-                logger.info(f"\nAI Response: {result['coding_result']}")
+            await mcp_manager.disconnect()
+            logger.info("MCP connections closed successfully.")
 
         except Exception as exc:
-            logger.exception(
-                f"Application error: {exc}"
-            )
-
+            logger.exception(f"Error while shutting down MCP: {exc}")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

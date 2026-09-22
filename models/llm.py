@@ -64,7 +64,7 @@ def get_llm_with_fallback(
         Either ChatOllama or ChatGroq instance
     """
     # Check if Ollama is available
-    if config_settings and config_settings.use_ollama and check_ollama_availability():
+    if config_settings and config_settings.use_ollama and check_ollama_availability(config_settings=config_settings):
         try:
             logger.info(f"Initializing {model_type} with Ollama model: {ollama_model}")
 
