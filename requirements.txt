@@ -18,3 +18,5 @@ yt-dlp
 
 mcp[cli]
 fastmcp
+
+streamlit
