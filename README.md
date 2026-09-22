@@ -1,4 +1,4 @@
-# 🤖 Multi-Agent AI System with MCP
+# 🤖 Syntera AI
 
 A modular **Agentic AI system** built with **LangChain, LangGraph, MCP (Model Context Protocol), FastMCP, and configurable LLM providers**.
 
@@ -179,7 +179,7 @@ The Research Agent discovers the available MCP tools at runtime instead of hardc
 
 ```bash
 git clone <repository-url>
-cd Multi-Agents
+cd Syntera-AI
 
 python -m venv .venv
 ```
@@ -461,7 +461,7 @@ Add a user-facing interface:
 
 ```text
 ┌─────────────────────────────────────────┐
-│          Multi-Agent AI Assistant       │
+│          Syntera AI Assistant       │
 ├─────────────────────────────────────────┤
 │                                         │
 │ User: Research RAG and implement it     │
@@ -723,7 +723,7 @@ It contains:
 
 ## 🎯 Project Goal
 
-The long-term goal is to evolve this project from a basic multi-agent workflow into a modular **Agentic AI platform** where:
+The long-term goal is to evolve **Syntera AI** from a basic multi-agent workflow into a modular **Agentic AI platform** where:
 
 - Agents specialize in different responsibilities.
 - Agents can collaborate dynamically.

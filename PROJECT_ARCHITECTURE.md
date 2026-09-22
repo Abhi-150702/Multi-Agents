@@ -1,8 +1,8 @@
-# 🏗️ Project Architecture — Multi-Agent AI System
+# 🏗️ Syntera AI — Project Architecture
 
-This document contains the detailed technical architecture of the project.
+This document contains the detailed technical architecture of **Syntera AI**.
 
-The `README.md` describes **what the project is and where it is going**.
+The `README.md` describes **what Syntera AI is and where it is going**.
 
 This document describes **how the project currently works** and how the planned upgrades fit into the architecture.
 
@@ -10,7 +10,7 @@ This document describes **how the project currently works** and how the planned 
 
 # 1. System Overview
 
-The system is a multi-agent application built around:
+**Syntera AI** is a multi-agent application built around:
 
 ```text
 Python
@@ -42,7 +42,7 @@ Coding Agent
 # 2. Directory Structure
 
 ```text
-Multi-Agents/
+Syntera-AI/
 │
 ├── agents/
 │   ├── supervisor/
@@ -251,10 +251,15 @@ Supervisor
   ├──────────────► General ──────────► END
   │
   ├──────────────► Research ─────────► END
-  │                  |
-  │                  ▼
+  │
   └──────────────► Coding ───────────► END
 ```
+
+The important current design decision is:
+
+> The Supervisor does not own the decision of whether a Coding task requires research.
+
+That responsibility is intended to move into the Coding Agent's future agentic workflow.
 
 ---
 
