@@ -251,15 +251,10 @@ Supervisor
   ├──────────────► General ──────────► END
   │
   ├──────────────► Research ─────────► END
-  │
+  │                  |
+  │                  ▼
   └──────────────► Coding ───────────► END
 ```
-
-The important current design decision is:
-
-> The Supervisor does not own the decision of whether a Coding task requires research.
-
-That responsibility is intended to move into the Coding Agent's future agentic workflow.
 
 ---
 
