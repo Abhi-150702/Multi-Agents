@@ -11,7 +11,7 @@ logger = setup_logger("read_webpage")
 @tool
 def read_webpage(
     url: str,
-    max_characters: int = 30000
+    max_characters: int = 5000
 ) -> str:
     """
     Read and extract textual content from a public webpage.
@@ -45,7 +45,7 @@ def read_webpage(
         response = requests.get(
             url,
             headers=headers,
-            timeout=20,
+            timeout=120,
         )
 
         response.raise_for_status()

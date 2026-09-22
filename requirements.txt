@@ -1,6 +1,7 @@
 langchain
 langgraph
 langchain_groq
+langchain_ollama
 langchain_community
 python-dotenv
 pydantic
@@ -14,3 +15,6 @@ langchain-core
 arxiv
 youtube-transcript-api
 yt-dlp
+
+mcp[cli]
+fastmcp

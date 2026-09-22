@@ -12,7 +12,7 @@ logger = setup_logger("google_search")
 
 
 @tool
-def google_search(query: str) -> str:
+def google_search(query: str, num_results: int = 5) -> str:
     """
     Search Google for web results.
     Useful for broad web research and finding official documentation.
@@ -20,7 +20,7 @@ def google_search(query: str) -> str:
     try:
         log_tool_call(logger, "google_search", query=query)
 
-        results = search.results(query)
+        results = search.results(query=query, num_results=num_results)
 
         formatted_results = []
         for result in results:
